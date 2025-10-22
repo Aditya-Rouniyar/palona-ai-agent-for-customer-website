@@ -4,6 +4,8 @@
 
 This is a smart shopping assistant that can chat with you, find products, and even understand images. Think of it as your personal shopping buddy that never gets tired of helping you find exactly what you're looking for.
 
+### Note:- I have used code space to run the project live so it.
+
 # What Can This Thing Do?
 -  Chat naturally  - Have real conversations, ask questions, get helpful answers
 -  Find products  - Tell it what you want and it'll search the web for real products with current prices
