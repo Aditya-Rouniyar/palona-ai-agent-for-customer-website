@@ -1,6 +1,6 @@
 # Commerce AI Agent
-# I have used Cursor as my coding partner to complete this project.
-# I have exposed the API keys because since it's a project and doesn't affect me.
+### I have used Cursor as my coding partner to complete this project.
+### I have exposed the API keys because since it's a project and doesn't affect me.
 
 This is a smart shopping assistant that can chat with you, find products, and even understand images. Think of it as your personal shopping buddy that never gets tired of helping you find exactly what you're looking for.
 
