@@ -119,8 +119,15 @@ def is_greeting_or_chitchat(message: str) -> bool:
         'how are you', "what's up", 'how is it going', 'nice to meet you',
         'thanks', 'thank you', 'bye', 'goodbye', 'see you'
     ]
+    # Add more general conversation patterns
+    general_questions = [
+        "what's your name", 'what is your name', 'who are you', 'what are you',
+        'what can you do', 'what do you do', 'tell me about yourself',
+        'introduce yourself', 'who am i talking to', 'what should i call you'
+    ]
     message_lower = message.lower().strip()
-    return any(message_lower.startswith(g) or message_lower == g for g in greetings)
+    return (any(message_lower.startswith(g) or message_lower == g for g in greetings) or
+            any(gq in message_lower for gq in general_questions))
 
 def is_knowledge_question(message: str) -> bool:
     indicators = ['what is', 'how does', 'why', 'when', 'where', 'explain', 'tell me about']
@@ -322,23 +329,26 @@ def perplexity_product_search(query: str, search_type: str = "shopping") -> List
 
 # --- Smalltalk / General conversation helpers ---
 def smalltalk_llm_reply(message: str, chat_history: List = None) -> Optional[str]:
-    """Use Gemini LLM to produce a natural conversational reply."""
+    """Use Gemini LLM to produce a natural conversational reply with intelligent understanding."""
     try:
         if chat_history is None:
             chat_history = []
         conversation_llm = ChatGoogleGenerativeAI(
             model="gemini-2.0-flash-exp",
-            temperature=0.8,
+            temperature=0.9,  # Higher temperature for more natural, varied responses
             google_api_key=GEMINI_API_KEY
         )
         system_prompt = (
-            "You are Palona, a friendly, concise shopping assistant. "
-            "Chat naturally, ask brief clarifying questions when helpful. "
-            "If the user seems to want products, you may say you can search real online stores."
+            "You are Palona, a friendly and intelligent shopping assistant. "
+            "You can have natural conversations, understand typos and variations in language, "
+            "and help with both general questions and shopping needs. "
+            "Be conversational, helpful, and engaging. "
+            "If someone asks about products or shopping, mention that you can search real online stores. "
+            "Handle spelling mistakes gracefully and respond naturally to any question or comment."
         )
         messages = [SystemMessage(content=system_prompt)]
         if chat_history:
-            messages.extend(chat_history[-6:])
+            messages.extend(chat_history[-8:])  # Keep more context for better conversation
         messages.append(HumanMessage(content=message))
         response = conversation_llm.invoke(messages)
         return response.content
@@ -367,17 +377,24 @@ def smalltalk_perplexity_reply(message: str) -> Optional[str]:
     return None
 
 def get_smalltalk_response(message: str, chat_history: List = None) -> str:
-    """Select best smalltalk answer from LLM, Perplexity, or deterministic fallback."""
+    """Use Gemini for intelligent conversation handling with natural language understanding."""
+    # Always try Gemini first for natural conversation - it handles typos, variations, and context
     if USE_LLM_FOR_CHITCHAT:
         ans = smalltalk_llm_reply(message, chat_history)
         if ans:
             return ans
+    
+    # Use Perplexity for knowledge questions if Gemini doesn't handle it
     if USE_PERPLEXITY_FOR_CHITCHAT and is_knowledge_question(message):
         ans = smalltalk_perplexity_reply(message)
         if ans:
             return ans
+    
+    # Fallback for very basic greetings only
     if is_greeting_or_chitchat(message):
         return "Hi! I'm Palona. I can chat and also help you find products. What's up?"
+    
+    # Default fallback
     return (
         "I'm here to chat and help with shopping. Ask me anything, or tell me "
         "what you're looking to buy and I can search real stores."
@@ -593,37 +610,37 @@ def filter_products_by_price(min_price: float, max_price: float) -> str:
 
 
 # System prompt for the agent
-AGENT_SYSTEM_PROMPT = """You are Rufus, an intelligent shopping assistant that searches REAL products from online stores.
+AGENT_SYSTEM_PROMPT = """You are Palona, an intelligent and friendly shopping assistant with natural conversation abilities.
 
-Your capabilities:
-1.  General Conversation : Answer questions about yourself, what you can do, and engage in friendly conversation
-2.  Real-Time Product Search : Find actual products from online retailers with current prices and direct shopping links
-3.  Image-Based Search : Analyze product images and find similar items available online
-4.  Price Range Search : Find products within specific budget ranges from real stores
+PERSONALITY & CONVERSATION:
+- Be warm, helpful, and engaging in all interactions
+- Understand typos, slang, and natural language variations
+- Respond conversationally and contextually
+- Show personality while being professional
+- Handle any question or comment gracefully
 
-CRITICAL INSTRUCTIONS:
-- You search REAL PRODUCTS from ACTUAL ONLINE STORES using Perplexity Search API
-- You MUST use the search_products_by_text tool when users ask for products, recommendations, or searches
-- You MUST use the filter_products_by_price tool when users mention price ranges
-- NEVER describe products without using the tools first - the tools return HTML cards with images and shopping links
-- The tools return FORMATTED HTML with real product images, current prices, and direct store links
-- DO NOT REFORMAT OR SUMMARIZE THE TOOL OUTPUT - return it EXACTLY as provided
-- When users ask for photos or links, use the search tools - they include real product images and store links
-- Present the EXACT tool response to users without modification
+YOUR CAPABILITIES:
+1. Natural Conversation: Chat about anything, answer questions, be helpful
+2. Product Search: Find real products from online stores with current prices and links
+3. Image Search: Analyze photos and find similar products
+4. Shopping Assistance: Help with recommendations, comparisons, and finding deals
 
-Guidelines:
-- Be friendly, helpful, and conversational
-- ALWAYS use tools for product queries - you search real online stores
-- Explain that you find REAL products from actual retailers, not a local catalog
-- For product recommendations, you can ask clarifying questions, then use search_products_by_text
-- The tool responses are COMPLETE with clickable links to buy - just return them AS-IS
-- If you don't find exact matches, search for similar alternatives
-- You can add a brief intro like "I found these products online:" but then show the EXACT tool output
-- Remind users these are real products they can buy by clicking the links
+CONVERSATION RULES:
+- For general chat, questions about yourself, or casual conversation: Respond naturally without tools
+- Be conversational and engaging - don't be robotic
+- If someone mentions shopping or products, offer to search real stores
+- Handle spelling mistakes and informal language naturally
 
-Important: You search LIVE products from real online stores with current availability and pricing!
+PRODUCT SEARCH RULES:
+- When users want products: Use search_products_by_text tool
+- When users mention price ranges: Use filter_products_by_price tool  
+- Tools return HTML with real product images, prices, and store links
+- Present tool results exactly as returned - they're complete and ready to use
+- Add brief context like "I found these products online:" before showing results
 
-Remember: ALWAYS use the tools - they return real products with images and direct shopping links!"""
+IMPORTANT: You search LIVE products from real online stores with current availability and pricing!
+
+Be natural, helpful, and engaging in all interactions!"""
 
 
 # Create the AI Agent
@@ -867,7 +884,7 @@ HTML_TEMPLATE = """
                 </div>
             </div>
             <div class="input-container">
-                <input type="text" id="user-input" placeholder="Ask me anything... Please ues: If you want to buy something please type I am looking for" onkeypress="handleKeyPress(event)">
+                <input type="text" id="user-input" placeholder="Ask me anything... eg: Recommend me a t-shirt for sports." onkeypress="handleKeyPress(event)">
                 <button id="mic-button" onclick="toggleVoiceInput()" title="Voice input">🎤</button>
                 <button onclick="sendMessage()">Send</button>
             </div>
@@ -1264,27 +1281,8 @@ def chat():
 
         chat_history = conversation_histories[session_id]
 
-        # Intent detection first: general chat vs product/knowledge
-        if is_greeting_or_chitchat(user_message) or (not is_product_intent(user_message) and not is_knowledge_question(user_message)):
-            try:
-                response_text = get_smalltalk_response(user_message, chat_history)
-                # Update history
-                chat_history.append(HumanMessage(content=user_message))
-                chat_history.append(AIMessage(content=response_text))
-                # Trim history
-                if len(chat_history) > 10:
-                    chat_history = chat_history[-10:]
-                conversation_histories[session_id] = chat_history
-                return jsonify({
-                    "success": True,
-                    "response": response_text,
-                    "conversation": True
-                })
-            except Exception as e:
-                print(f"Smalltalk path error: {e}")
-                # Fall-through to agent or search below
-
-        # Product or knowledge intent: try agent first
+        # Use intelligent routing: Try Gemini agent first for all messages
+        # This allows natural conversation and handles typos, context, and intent better
         try:
             if USE_GEMINI_AGENT and time.time() > GEMINI_BLOCK_UNTIL:
                 response = commerce_agent.invoke({
@@ -1303,42 +1301,41 @@ def chat():
                     "response": response['output']
                 })
             else:
-                if is_product_intent(user_message):
-                    fallback_html = search_products_by_text(user_message)
-                    return jsonify({
-                        "success": True,
-                        "response": fallback_html,
-                        "fallback": True
-                    })
-                else:
-                    response_text = get_smalltalk_response(user_message, chat_history)
-                    return jsonify({
-                        "success": True,
-                        "response": response_text,
-                        "conversation": True
-                    })
+                # Fallback to smalltalk for general conversation
+                response_text = get_smalltalk_response(user_message, chat_history)
+                # Update history
+                chat_history.append(HumanMessage(content=user_message))
+                chat_history.append(AIMessage(content=response_text))
+                # Trim history
+                if len(chat_history) > 10:
+                    chat_history = chat_history[-10:]
+                conversation_histories[session_id] = chat_history
+                return jsonify({
+                    "success": True,
+                    "response": response_text,
+                    "conversation": True
+                })
         except Exception as agent_error:
             try:
-                if is_product_intent(user_message):
-                    fallback_html = search_products_by_text(user_message)
-                    return jsonify({
-                        "success": True,
-                        "response": fallback_html,
-                        "fallback": True,
-                        "reason": str(agent_error)[:200]
-                    })
-                else:
-                    response_text = get_smalltalk_response(user_message, chat_history)
-                    return jsonify({
-                        "success": True,
-                        "response": response_text,
-                        "conversation": True,
-                        "fallback": True
-                    })
+                # If agent fails, try smalltalk for general conversation
+                response_text = get_smalltalk_response(user_message, chat_history)
+                # Update history
+                chat_history.append(HumanMessage(content=user_message))
+                chat_history.append(AIMessage(content=response_text))
+                # Trim history
+                if len(chat_history) > 10:
+                    chat_history = chat_history[-10:]
+                conversation_histories[session_id] = chat_history
+                return jsonify({
+                    "success": True,
+                    "response": response_text,
+                    "conversation": True,
+                    "fallback": True
+                })
             except Exception as fallback_error:
                 return jsonify({
                     "success": False,
-                    "error": f"{agent_error} | fallback_error: {fallback_error}"
+                    "error": f"Agent error: {agent_error} | Fallback error: {fallback_error}"
                 }), 500
 
     except Exception as e:

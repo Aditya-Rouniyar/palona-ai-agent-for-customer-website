@@ -15,7 +15,7 @@ This is a smart shopping assistant that can chat with you, find products, and ev
 # What Can This Thing Do?
 -  Chat naturally  - Have real conversations, ask questions, get helpful answers
 -  Find products  - Tell it what you want and it'll search the web for real products with current prices
--  Image search  - Upload a photo of something you like and find similar items
+-  Image search  - Upload a photo of something you like and find similar items not only in the local catalog.
 -  Voice chat  - Talk to it and it'll talk back (if you want it to)
 -  Remember stuff  - Keeps track of your conversation so it makes sense
 
