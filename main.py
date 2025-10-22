@@ -867,7 +867,7 @@ HTML_TEMPLATE = """
                 </div>
             </div>
             <div class="input-container">
-                <input type="text" id="user-input" placeholder="Ask me anything... e.g., 'Recommend me a t-shirt for sports'" onkeypress="handleKeyPress(event)">
+                <input type="text" id="user-input" placeholder="Ask me anything... Please ues: If you want to buy something please type I am looking for" onkeypress="handleKeyPress(event)">
                 <button id="mic-button" onclick="toggleVoiceInput()" title="Voice input">🎤</button>
                 <button onclick="sendMessage()">Send</button>
             </div>
