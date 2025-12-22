@@ -1,6 +1,6 @@
 # Commerce AI Agent
 
-### I have exposed the API keys because since it's a project and doesn't affect me.
+https://github.com/user-attachments/assets/8c160e05-acd5-4678-a1a9-d46a5517385d
 
 ### I have used Cursor as my coding partner to complete this project.
 
