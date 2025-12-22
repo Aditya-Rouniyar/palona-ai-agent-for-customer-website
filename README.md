@@ -1,8 +1,5 @@
 # Commerce AI Agent
 
-# Please use the below link to checkout the project: 
-https://super-duper-spork-9wv45g9j554hxw94-3000.app.github.dev/
-
 ### I have exposed the API keys because since it's a project and doesn't affect me.
 
 ### I have used Cursor as my coding partner to complete this project.
