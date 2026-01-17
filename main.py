@@ -58,8 +58,8 @@ except ImportError:
     print("Warning: Perplexity not available. Using basic search.")
 
 # Environment setup
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AIzaSyByF353130s7tt7hmFrkN6eLha0t2JyNzw")
-PERPLEXITY_API_KEY = os.environ.get("PERPLEXITY_API_KEY", "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")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "A************************************")
+PERPLEXITY_API_KEY = os.environ.get("PERPLEXITY_API_KEY", "***************************************")
 USE_GEMINI_AGENT = os.environ.get("USE_GEMINI_AGENT", "true").lower() == "true"
 # Smalltalk controls
 USE_LLM_FOR_CHITCHAT = os.environ.get("USE_LLM_FOR_CHITCHAT", "true").lower() == "true"
